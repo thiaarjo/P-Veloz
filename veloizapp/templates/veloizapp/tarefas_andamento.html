@@ -1,0 +1,59 @@
+{% extends 'veloizapp/base.html' %}
+{% load static %}
+
+{% block title %}Tarefas em Andamento{% endblock %}
+
+{% block content %}
+<div class="container-modern">
+    <div class="section-header">
+        <h1 class="section-title">Tarefas em Andamento</h1>
+        <p class="section-subtitle">Tarefas que estão sendo executadas</p>
+    </div>
+
+    <div class="tasks-section">
+        <h2 class="mb-4" style="color: var(--black); border-left: 4px solid #3498DB; padding-left: 1rem;">
+            Lista de Tarefas
+            <span class="badge" style="background: #3498DB;">
+                {{ tarefas_andamento|length }}
+            </span>
+        </h2>
+
+        {% if tarefas_andamento %}
+        <div class="tasks-grid">
+            {% for tarefa in tarefas_andamento %}
+            <div class="task-card" style="border-left-color: #3498DB;">
+                <div class="task-header">
+                    <h3 class="task-title">{{ tarefa.descricao }}</h3>
+                    <span class="badge {% if tarefa.categoria == 'urgente' %}badge-urgent{% elif tarefa.categoria == 'importante' %}badge-important{% else %}badge-normal{% endif %}">
+                        {{ tarefa.get_categoria_display }}
+                    </span>
+                </div>
+                
+                <div class="task-meta">
+                    <span>Projeto: {{ tarefa.projeto.nome|default:"Sem projeto" }}</span><br>
+                    <span>Criado em: {{ tarefa.data_criacao|date:"d/m/Y" }}</span>
+                </div>
+
+                <div class="task-actions">
+                    <a href="{% url 'concluir_tarefa' tarefa.id %}" class="btn-modern btn-success">Concluir</a>
+                    <a href="{% url 'adiar_tarefa' tarefa.id %}" class="btn-modern btn-warning">Adiar</a>
+                    <a href="{% url 'editar_tarefa' tarefa.id %}" class="btn-modern btn-primary">Editar</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>Nenhuma tarefa em andamento</h3>
+            <p>Inicie algumas tarefas para vê-las aqui.</p>
+        </div>
+        {% endif %}
+
+        <div class="task-actions mt-4">
+            <a href="{% url 'tarefas_pendentes' %}" class="btn-modern btn-primary">
+                Voltar para Tarefas Pendentes
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

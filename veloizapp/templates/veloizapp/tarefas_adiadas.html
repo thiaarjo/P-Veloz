@@ -1,0 +1,96 @@
+{% extends 'veloizapp/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Tarefas Adiadas{% endblock %}
+
+{% block content %}
+<div class="container-modern">
+    <div class="section-header">
+        <h1 class="section-title">Tarefas Adiadas</h1>
+        <p class="section-subtitle">Tarefas que foram postergadas</p>
+    </div>
+
+    <div class="tasks-section">
+        <h2 class="mb-4" style="color: var(--black); border-left: 4px solid #F39C12; padding-left: 1rem;">
+            Lista de Tarefas Adiadas
+            <span class="badge" style="background: #F39C12;">
+                {{ tarefas_adiadas|length }}
+            </span>
+        </h2>
+
+        {% if tarefas_adiadas %}
+        <div class="tasks-grid">
+            {% for tarefa in tarefas_adiadas %}
+            <div class="task-card" style="border-left-color: #F39C12;">
+                <div class="task-header">
+                    <h3 class="task-title">{{ tarefa.descricao }}</h3>
+                    <span class="badge" style="background: #F39C12;">
+                        Adiada
+                    </span>
+                </div>
+                
+                <div class="task-meta">
+                    <span>Criado em: {{ tarefa.data_criacao|date:"d/m/Y" }}</span>
+                    {% if tarefa.projeto %}
+                    <br><span>Projeto: {{ tarefa.projeto.nome }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="task-actions">
+                    <button class="btn-modern btn-primary" 
+                            data-toggle="modal" 
+                            data-target="#modal{{ tarefa.id }}">
+                        Ver Detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal{{ tarefa.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                {{ tarefa.descricao }} | {{ tarefa.get_categoria_display }}
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <p><strong>Status:</strong> <span class="badge" style="background: #F39C12;">Adiada</span></p>
+                                <p><strong>Criado em:</strong> {{ tarefa.data_criacao|date:"d/m/Y H:i" }}</p>
+                                {% if tarefa.projeto %}
+                                <p><strong>Projeto:</strong> {{ tarefa.projeto.nome }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="grid-2-col">
+                                <a href="{% url 'mover_para_pendentes' tarefa.id %}" class="btn-modern btn-success">Mover para Pendentes</a>
+                                <a href="{% url 'editar_tarefa' tarefa.id %}" class="btn-modern btn-primary">Editar</a>
+                                <a href="{% url 'excluir_tarefa' tarefa.id %}" class="btn-modern btn-danger">Excluir</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>Nenhuma tarefa adiada</h3>
+            <p>Não há tarefas postergadas no momento.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+</style>
+{% endblock %}

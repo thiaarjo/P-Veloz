@@ -1,0 +1,70 @@
+{% extends 'veloizapp/base.html' %}
+{% load static %}
+
+{% block title %}Detalhes do Projeto{% endblock %}
+
+{% block content %}
+<div class="container-modern">
+    <div class="section-header">
+        <h1 class="section-title">{{ projeto.nome }}</h1>
+        <p class="section-subtitle">{{ projeto.get_tipo_display }}</p>
+    </div>
+
+    <div class="card-modern">
+        <h3 class="mb-3">Descrição</h3>
+        <p>{{ projeto.descricao|default:"Sem descrição" }}</p>
+        
+        <div class="task-meta">
+            <strong>Criado por:</strong> {{ projeto.usuario.username }}<br>
+            <strong>Tipo:</strong> {{ projeto.get_tipo_display }}<br>
+            <strong>Total de tarefas:</strong> {{ tarefas_projeto.count }}
+        </div>
+    </div>
+
+    <div class="tasks-section">
+        <h2 class="mb-4" style="color: var(--black); border-left: 4px solid var(--green-primary); padding-left: 1rem;">
+            Tarefas do Projeto
+        </h2>
+
+        {% if tarefas_projeto %}
+        <div class="tasks-grid">
+            {% for tarefa in tarefas_projeto %}
+            <div class="task-card {% if tarefa.categoria == 'urgente' %}task-urgent{% elif tarefa.categoria == 'importante' %}task-important{% else %}task-normal{% endif %}">
+                <div class="task-header">
+                    <h3 class="task-title">{{ tarefa.descricao }}</h3>
+                    <span class="badge {% if tarefa.categoria == 'urgente' %}badge-urgent{% elif tarefa.categoria == 'importante' %}badge-important{% else %}badge-normal{% endif %}">
+                        {{ tarefa.get_categoria_display }}
+                    </span>
+                </div>
+                
+                <div class="task-meta">
+                    <span>Status: {{ tarefa.get_status_display }}</span><br>
+                    <span>Criado em: {{ tarefa.data_criacao|date:"d/m/Y" }}</span>
+                </div>
+
+                <div class="task-actions">
+                    <a href="{% url 'editar_tarefa' tarefa.id %}" class="btn-modern btn-primary">
+                        Editar
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>Nenhuma tarefa neste projeto</h3>
+            <p>Adicione tarefas a este projeto na página de tarefas.</p>
+        </div>
+        {% endif %}
+
+        <div class="task-actions mt-4">
+            <a href="{% url 'projetos' %}" class="btn-modern btn-primary">
+                Voltar para Projetos
+            </a>
+            <a href="{% url 'tarefas_pendentes' %}" class="btn-modern btn-success">
+                Ir para Tarefas
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

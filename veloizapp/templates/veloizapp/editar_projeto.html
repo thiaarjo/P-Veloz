@@ -1,0 +1,25 @@
+{% extends 'veloizapp/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Projeto{% endblock %}
+
+{% block content %}
+<div class="container-modern">
+    <div class="section-header">
+        <h1 class="section-title">Editar Projeto</h1>
+        <p class="section-subtitle">Editando: {{ projeto.nome }}</p>
+    </div>
+
+    <div class="card-modern">
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="task-actions mt-4">
+                <button type="submit" class="btn-modern btn-primary">Salvar Alterações</button>
+                <a href="{% url 'projetos' %}" class="btn-modern btn-danger">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

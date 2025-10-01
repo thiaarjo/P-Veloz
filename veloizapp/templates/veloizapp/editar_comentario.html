@@ -1,0 +1,25 @@
+{% extends 'veloizapp/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Comentário{% endblock %}
+
+{% block content %}
+<div class="container-modern">
+    <div class="section-header">
+        <h1 class="section-title">Editar Comentário</h1>
+        <p class="section-subtitle">Atualize seu comentário</p>
+    </div>
+
+    <div class="card-modern">
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="task-actions mt-4">
+                <button type="submit" class="btn-modern btn-success">Salvar Alterações</button>
+                <a href="{% url 'tarefas_pendentes' %}" class="btn-modern btn-danger">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

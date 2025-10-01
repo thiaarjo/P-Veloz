@@ -1,0 +1,134 @@
+{% extends 'veloizapp/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Tarefas Pendentes{% endblock %}
+
+{% block content %}
+<div class="container-modern">
+    <div class="section-header">
+        <h1 class="section-title">Tarefas Pendentes</h1>
+        <p class="section-subtitle">Gerencie suas tarefas em andamento</p>
+    </div>
+
+    <div class="card-modern">
+        <h2 class="mb-4" style="color: var(--black); border-left: 4px solid var(--green-primary); padding-left: 1rem;">
+            Adicionar Tarefa
+        </h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn-modern btn-primary mt-3">
+                Adicionar Tarefa
+            </button>
+        </form>
+    </div>
+
+    <div class="tasks-section">
+        <h2 class="mb-4" style="color: var(--black); border-left: 4px solid var(--green-primary); padding-left: 1rem;">
+            Lista de Tarefas
+            <span class="badge" style="background: var(--green-primary);">
+                {{ tarefas_pendentes|length }}
+            </span>
+        </h2>
+
+        {% if tarefas_pendentes %}
+        <div class="tasks-grid">
+            {% for tarefa in tarefas_pendentes %}
+            <div class="task-card {% if tarefa.categoria == 'urgente' %}task-urgent{% elif tarefa.categoria == 'importante' %}task-important{% else %}task-normal{% endif %}">
+                <div class="task-header">
+                    <h3 class="task-title">{{ tarefa.descricao }}</h3>
+                    <span class="badge {% if tarefa.categoria == 'urgente' %}badge-urgent{% elif tarefa.categoria == 'importante' %}badge-important{% else %}badge-normal{% endif %}">
+                        {{ tarefa.get_categoria_display }}
+                    </span>
+                </div>
+                
+                <div class="task-meta">
+                    <span>Criado em: {{ tarefa.data_criacao|date:"d/m/Y" }}</span>
+                    {% if tarefa.projeto %}
+                    <br><span>Projeto: {{ tarefa.projeto.nome }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="task-actions">
+                    <button class="btn-modern btn-primary" 
+                            data-toggle="modal" 
+                            data-target="#modal{{ tarefa.id }}">
+                        Ver Detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal{{ tarefa.id }}" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                {{ tarefa.descricao }} | {{ tarefa.get_categoria_display }}
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-4">
+                                <h6 class="mb-3">Comentários:</h6>
+                                {% for c in tarefa.comentarios.all %}
+                                <div class="card-modern mb-2">
+                                    <p class="mb-2">{{ c.text_comment }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ c.data_comentario|date:"d/m/Y H:i" }}</small>
+                                        <a href="{% url 'editar_comentario' c.id %}" class="btn-modern" style="background: #3498db; color: white; padding: 0.3rem 0.7rem; font-size: 0.8rem;">
+                                            Editar
+                                        </a>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p class="text-center text-muted py-3">
+                                    Sem comentários ainda.
+                                </p>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-4">
+                                <h6 class="mb-3">Adicionar Comentário:</h6>
+                                <form method="post" action="{% url 'tarefas_pendentes' %}">
+                                    {% csrf_token %}
+                                    {{ comentario_form|crispy }}
+                                    <input type="hidden" name="tarefa_id" value="{{ tarefa.id }}">
+                                    <button type="submit" class="btn-modern btn-success mt-2">
+                                        Salvar Comentário
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="grid-2-col">
+                                <a href="{% url 'concluir_tarefa' tarefa.id %}" class="btn-modern btn-success">Concluir</a>
+                                <a href="{% url 'editar_tarefa' tarefa.id %}" class="btn-modern btn-primary">Editar</a>
+                                <a href="{% url 'adiar_tarefa' tarefa.id %}" class="btn-modern btn-warning">Adiar</a>
+                                <a href="{% url 'excluir_tarefa' tarefa.id %}" class="btn-modern btn-danger">Excluir</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>Nenhuma tarefa pendente</h3>
+            <p>Parabéns! Você concluiu todas as tarefas.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+</style>
+{% endblock %}

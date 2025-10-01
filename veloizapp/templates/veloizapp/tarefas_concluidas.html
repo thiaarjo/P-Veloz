@@ -1,0 +1,86 @@
+{% extends 'veloizapp/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Tarefas Concluídas{% endblock %}
+
+{% block content %}
+<div class="container-modern">
+    <div class="section-header">
+        <h1 class="section-title">Tarefas Concluídas</h1>
+        <p class="section-subtitle">Visualize suas tarefas finalizadas</p>
+    </div>
+
+    <div class="tasks-section">
+        <h2 class="mb-4" style="color: var(--black); border-left: 4px solid var(--green-primary); padding-left: 1rem;">
+            Lista de Tarefas Concluídas
+            <span class="badge" style="background: var(--green-primary);">
+                {{ tarefas_concluidas|length }}
+            </span>
+        </h2>
+
+        {% if tarefas_concluidas %}
+        <div class="tasks-grid">
+            {% for tarefa in tarefas_concluidas %}
+            <div class="task-card" style="border-left-color: var(--green-primary);">
+                <div class="task-header">
+                    <h3 class="task-title">{{ tarefa.descricao }}</h3>
+                    <span class="badge" style="background: var(--green-primary);">
+                        Concluída
+                    </span>
+                </div>
+                
+                <div class="task-meta">
+                    <span>Criado em: {{ tarefa.data_criacao|date:"d/m/Y" }}</span>
+                    {% if tarefa.projeto %}
+                    <br><span>Projeto: {{ tarefa.projeto.nome }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="task-actions">
+                    <button class="btn-modern btn-primary" 
+                            data-toggle="modal" 
+                            data-target="#modal{{ tarefa.id }}">
+                        Ver Detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal{{ tarefa.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                {{ tarefa.descricao }} | {{ tarefa.get_categoria_display }}
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <p><strong>Status:</strong> <span class="badge" style="background: var(--green-primary);">Concluída</span></p>
+                                <p><strong>Criado em:</strong> {{ tarefa.data_criacao|date:"d/m/Y H:i" }}</p>
+                                {% if tarefa.projeto %}
+                                <p><strong>Projeto:</strong> {{ tarefa.projeto.nome }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="task-actions">
+                                <a href="{% url 'excluir_tarefa' tarefa.id %}" class="btn-modern btn-danger">Excluir</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>Nenhuma tarefa concluída</h3>
+            <p>Complete algumas tarefas para vê-las aqui.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

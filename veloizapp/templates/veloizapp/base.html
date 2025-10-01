@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- NOSSOS CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'veloizapp/css/style.css' %}">
+    
+    <title>{% block title %}Tarefas{% endblock %}</title>
+  </head> 
+  <body style="padding-top: 70px;">
+
+    <!-- NAVBAR - SÓ MOSTRA SE NÃO FOR PÁGINA DE LOGIN -->
+    {% if not request.path == '/' %}
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light navbar-professional">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'tarefas_pendentes' %}">
+          <i class="bi bi-check2-square"></i> P_Veloiz
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">  
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="{% url 'tarefas_pendentes' %}">
+                <i class="bi bi-list-task"></i> Tarefas
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                <i class="bi bi-folder2-open"></i> Outras Tarefas
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'tarefas_adiadas' %}">Adiadas</a></li>
+                <li><a class="dropdown-item" href="{% url 'tarefas_concluidas' %}">Concluídas</a></li>
+              </ul>
+            </li>
+            <!-- BOTÃO DE LOGOUT -->
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <span class="navbar-text mr-3">
+                <i class="bi bi-person"></i> {{ user.username }}
+              </span>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-custom btn-sm" href="{% url 'login_page' %}?logout=1">
+                <i class="bi bi-box-arrow-right"></i> Sair
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+    {% endif %}
+
+    <div class="container-modern">
+      {% block content %}
+      {% endblock %}
+    </div>
+
+    <!-- JQUERY E BOOTSTRAP JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
