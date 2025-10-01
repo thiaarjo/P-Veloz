@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required  # ADICIONE ESTA LINHA
 from django.contrib.auth.models import User
 from .models import Tarefa, Comentario, Projeto
 from .forms import adicionarTarefa, editarTarefa, comentarioTarefa, adicionarProjeto, editarProjeto
@@ -39,6 +40,9 @@ def login_view(request):
     
     return render(request, 'veloizapp/login_page.html', {'error': error})
 
+# ADICIONE @login_required EM TODAS AS VIEWS ABAIXO:
+
+@login_required
 def projetos(request):
     projetos = Projeto.objects.filter(usuario=request.user)
     if request.method == 'POST':
@@ -52,6 +56,7 @@ def projetos(request):
         form = adicionarProjeto()
     return render(request, 'veloizapp/projetos.html', {'projetos': projetos, 'form': form})
 
+@login_required
 def editar_projeto(request, projeto_id):
     projeto_obj = get_object_or_404(Projeto, id=projeto_id, usuario=request.user)
     if request.method == 'POST':
@@ -63,11 +68,13 @@ def editar_projeto(request, projeto_id):
         form = editarProjeto(instance=projeto_obj)
     return render(request, 'veloizapp/editar_projeto.html', {'form': form, 'projeto': projeto_obj})
 
+@login_required
 def excluir_projeto(request, projeto_id):
     projeto_obj = get_object_or_404(Projeto, id=projeto_id, usuario=request.user)
     projeto_obj.delete()
     return redirect('projetos')
 
+@login_required
 def detalhes_projeto(request, projeto_id):
     projeto_obj = get_object_or_404(Projeto, id=projeto_id, usuario=request.user)
     tarefas_projeto = Tarefa.objects.filter(projeto=projeto_obj, responsavel=request.user)
@@ -76,6 +83,7 @@ def detalhes_projeto(request, projeto_id):
         'tarefas_projeto': tarefas_projeto
     })
 
+@login_required  # ADICIONEI AQUI
 def tarefas_pendentes(request):
     tarefas_pendentes = Tarefa.objects.filter(status='pendente', responsavel=request.user)
 
@@ -106,29 +114,34 @@ def tarefas_pendentes(request):
         'comentario_form': comentario_form
     })
 
+@login_required
 def iniciar_tarefa(request, tarefa_id):
     tarefa_obj = get_object_or_404(Tarefa, id=tarefa_id, responsavel=request.user)
     tarefa_obj.status = 'em andamento'
     tarefa_obj.save()
     return redirect('tarefas_pendentes')
 
+@login_required
 def concluir_tarefa(request, tarefa_id):
     tarefa_obj = get_object_or_404(Tarefa, id=tarefa_id, responsavel=request.user)
     tarefa_obj.status = 'concluida'
     tarefa_obj.save()
     return redirect('tarefas_pendentes')
 
+@login_required
 def excluir_tarefa(request, tarefa_id):
     tarefa_obj = get_object_or_404(Tarefa, id=tarefa_id, responsavel=request.user)
     tarefa_obj.delete()
     return redirect('tarefas_pendentes')
 
+@login_required
 def adiar_tarefa(request, tarefa_id):
     tarefa_obj = get_object_or_404(Tarefa, id=tarefa_id, responsavel=request.user)
     tarefa_obj.status = 'adiado'
     tarefa_obj.save()
     return redirect('tarefas_pendentes')
 
+@login_required
 def editar_tarefa(request, tarefa_id):
     tarefa_obj = get_object_or_404(Tarefa, id=tarefa_id, responsavel=request.user)
     if request.method == 'POST':
@@ -140,24 +153,29 @@ def editar_tarefa(request, tarefa_id):
         form = editarTarefa(instance=tarefa_obj)
     return render(request, 'veloizapp/editar_tarefa.html', {'form': form, 'tarefa': tarefa_obj})
 
+@login_required
 def tarefas_concluidas(request):
     tarefas_concluidas = Tarefa.objects.filter(status='concluida', responsavel=request.user)
     return render(request, 'veloizapp/tarefas_concluidas.html', {'tarefas_concluidas': tarefas_concluidas})
 
+@login_required
 def tarefas_adiadas(request):
     tarefas_adiadas = Tarefa.objects.filter(status='adiado', responsavel=request.user)
     return render(request, 'veloizapp/tarefas_adiadas.html', {'tarefas_adiadas': tarefas_adiadas})
 
+@login_required
 def tarefas_andamento(request):
     tarefas_andamento = Tarefa.objects.filter(status='em andamento', responsavel=request.user)
     return render(request, 'veloizapp/tarefas_andamento.html', {'tarefas_andamento': tarefas_andamento})
 
+@login_required
 def mover_para_pendentes(request, tarefa_id):
     tarefa_obj = get_object_or_404(Tarefa, id=tarefa_id, responsavel=request.user)
     tarefa_obj.status = 'pendente'
     tarefa_obj.save()
     return redirect('tarefas_adiadas')
 
+@login_required
 def editar_comentario(request, comentario_id):
     comentario_obj = get_object_or_404(Comentario, id=comentario_id)
     if comentario_obj.tarefa.responsavel != request.user:
@@ -172,6 +190,7 @@ def editar_comentario(request, comentario_id):
         form = comentarioTarefa(instance=comentario_obj)
     return render(request, 'veloizapp/editar_comentario.html', {'form': form, 'comentario': comentario_obj})
 
+@login_required
 def excluir_comentario(request, comentario_id):
     comentario_obj = get_object_or_404(Comentario, id=comentario_id)
     if comentario_obj.tarefa.responsavel == request.user:
